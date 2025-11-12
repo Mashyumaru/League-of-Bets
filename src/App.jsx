@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import MatchCard from './components/MatchCard';
+import NavBar from './components/NavBar';
 import { matchService } from './services/matchService';
 
 function App() {
@@ -32,6 +33,7 @@ function App() {
   if (loading) {
     return (
       <div className="max-w-[75rem] mx-auto px-5 pb-5">
+        <NavBar />
         <div className="text-center mt-12 text-white">
           <h2 className="text-2xl">Chargement des matchs...</h2>
         </div>
@@ -43,6 +45,7 @@ function App() {
   if (error) {
     return (
       <div className="max-w-[75rem] mx-auto px-5 pb-5">
+        <NavBar />
         <div className="text-center mt-12 p-5 bg-red-500 rounded-lg max-w-2xl mx-auto">
           <h2 className="text-2xl font-bold mb-2">Erreur</h2>
           <p className="mb-4">{error}</p>
@@ -60,12 +63,17 @@ function App() {
   // Affichage des matchs
   return (
     <div className="max-w-[75rem] mx-auto px-5 pb-5">
-      
+      <NavBar />
       <header className="text-center mb-10 pb-5 border-b-2 border-dark-border">
-        <h1 className="text-4xl md:text-5xl font-bold mb-2.5 bg-gradient-to-r from-primary-500 to-secondary-500 bg-clip-text text-transparent">
-          Paris LoL Worlds
+        <h1 className="
+          text-2xl md:text-5xl font-bold 
+          mb-2.5 
+          bg-gradient-to-r from-primary-500 to-secondary-500 
+          bg-clip-text text-transparent
+          pb-1
+        ">
+          Bienvenue dans League of Bets 
         </h1>
-        
         <p className="text-gray-400">
           Pariez sur vos équipes favorites
         </p>
