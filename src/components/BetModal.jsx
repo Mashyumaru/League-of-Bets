@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { betService } from '../services/betService';
 import pb from '../lib/pocketbase';
 
+// Modal qui permet de parier (Apparait lorsqu'on clique sur Parier dans matchCard)
 function BetModal({ match, existingBet, onClose, onBetPlaced }) {
   const [selectedTeam, setSelectedTeam] = useState(existingBet?.teamBet || null);
   const [amount, setAmount] = useState('');
@@ -9,8 +10,10 @@ function BetModal({ match, existingBet, onClose, onBetPlaced }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // Variable qui verifie si un pari sur ce match est déjà en cours
   const isIncreasingBet = !!existingBet;
 
+  // Recupère le nombre de points actuel de l'utilisateur
   useEffect(() => {
     const fetchUserPoints = async () => {
       try {
@@ -26,7 +29,7 @@ function BetModal({ match, existingBet, onClose, onBetPlaced }) {
     fetchUserPoints();
   }, []);
 
-  // Calcul du gain potentiel
+  // Calcul du gain 
   const getCurrentOdds = () => {
     if (!selectedTeam) return 0;
     return selectedTeam === match.team1 ? match.coteTeam1 : match.coteTeam2;
@@ -45,17 +48,20 @@ function BetModal({ match, existingBet, onClose, onBetPlaced }) {
     e.preventDefault();
     setError('');
     
+    // Selection d'une "quipe"
     if (!selectedTeam) {
       setError('Veuillez sélectionner une équipe');
       return;
     }
 
+    // Selection d'un montant
     const betAmount = parseFloat(amount);
     if (!betAmount || betAmount <= 0) {
       setError('Veuillez entrer un montant valide');
       return;
     }
 
+    // Verification que l'utilisateur a suffisement de points pour parier
     if (betAmount > userPoints) {
       setError(`Vous n'avez que ${userPoints} points disponibles`);
       return;
@@ -66,11 +72,10 @@ function BetModal({ match, existingBet, onClose, onBetPlaced }) {
     try {
       let result;
 
+      // Si l'utilisateur augment sa mise alors on fait appel a betService pour update la base de données sinon on créé un pari
       if (isIncreasingBet) {
-        // Augmentation d'un pari existant
         result = await betService.increaseBet(existingBet.id, betAmount);
       } else {
-        // Nouveau pari
         result = await betService.placeBet(
           match.id,
           selectedTeam,
@@ -78,9 +83,10 @@ function BetModal({ match, existingBet, onClose, onBetPlaced }) {
           potentialWin
         );
       }
-
+      
       if (result.success) {
-        setUserPoints(userPoints - betAmount);
+        const updatedUser = await pb.collection('users').getOne(pb.authStore.record.id);
+        setUserPoints(updatedUser.points);
         
         if (onBetPlaced) {
           onBetPlaced(result.bet);
@@ -94,7 +100,6 @@ function BetModal({ match, existingBet, onClose, onBetPlaced }) {
       }
     } catch (err) {
       setError('Une erreur est survenue lors du pari');
-      console.error('Erreur pari:', err);
     } finally {
       setLoading(false);
     }
@@ -115,6 +120,7 @@ function BetModal({ match, existingBet, onClose, onBetPlaced }) {
           </button>
         </div>
 
+        {/* Bordereau qui rappel le match */}
         <div className="mb-6 p-4 bg-dark-border rounded-lg">
           <div className="flex justify-between items-center text-sm">
             <span className="text-gray-400">{match.team1}</span>
@@ -123,6 +129,7 @@ function BetModal({ match, existingBet, onClose, onBetPlaced }) {
           </div>
         </div>
 
+        {/* Si un paris existe deja on affiche la mise actuelle et le nouveau gain potentiel */}
         {isIncreasingBet && (
           <div className="mb-4 p-4 bg-blue-900/20 border border-blue-500/30 rounded-lg">
             <div className="text-sm text-gray-300 mb-2">Votre pari actuel :</div>
@@ -139,13 +146,15 @@ function BetModal({ match, existingBet, onClose, onBetPlaced }) {
           </div>
         )}
 
+        {/* On affiche le solde de l'utilisateur */}
         <div className="mb-4 text-center">
           <span className="text-gray-400 text-sm">Solde disponible: </span>
           <span className="text-accent font-bold text-lg">{userPoints} points</span>
         </div>
-
+        
+        {/* Si aucun pari existe alors on demande à l'utilisateur de choisir une équipe sinon on affiche rien */}
         <form onSubmit={handleSubmit}>
-          {!isIncreasingBet && (
+          {!isIncreasingBet ? (
             <div className="mb-6">
               <label className="block text-sm font-medium text-gray-300 mb-3">
                 Sélectionnez une équipe
@@ -180,8 +189,9 @@ function BetModal({ match, existingBet, onClose, onBetPlaced }) {
                 </button>
               </div>
             </div>
-          )}
+          ) : undefined}
 
+          {/* Montant de la mise */}
           <div className="mb-6">
             <label className="block text-sm font-medium text-gray-300 mb-2">
               {isIncreasingBet ? 'Montant supplémentaire' : 'Montant du pari'}
@@ -201,6 +211,7 @@ function BetModal({ match, existingBet, onClose, onBetPlaced }) {
               </span>
             </div>
             
+            {/* Bouton pour miser directement certains montants */}
             <div className="flex gap-2 mt-2">
               {[25, 50, 100, 'Max'].map((preset) => (
                 <button
@@ -214,7 +225,8 @@ function BetModal({ match, existingBet, onClose, onBetPlaced }) {
               ))}
             </div>
           </div>
-
+            
+          {/* Recapitulatif de la mise */}
           {isIncreasingBet && amount && (
             <div className="mb-4 p-3 bg-dark-border rounded-lg">
               <div className="flex justify-between text-sm">
@@ -233,6 +245,7 @@ function BetModal({ match, existingBet, onClose, onBetPlaced }) {
             </div>
           )}
 
+          {/* Calcul du gain */}
           {potentialWin > 0 && (
             <div className="mb-6 p-4 bg-green-900/20 border border-green-500/30 rounded-lg">
               <div className="text-center">

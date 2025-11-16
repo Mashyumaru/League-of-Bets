@@ -14,24 +14,6 @@
       }
     },
 
-    async getMatchesByStatus(status) {
-      try {
-        const validStatuses = ['upcoming', 'live', 'finished'];
-        if (!validStatuses.includes(status)) {
-          throw new Error(`Statut invalide: ${status}`);
-        }
-
-        const matches = await pb.collection('matches').getFullList({
-          filter: `status = "${status}"`, 
-          sort: '-date',
-        });
-        return { success: true, matches };
-      } catch (error) {
-        console.error(`Erreur lors de la récupération des matchs ${status}:`, error);
-        return { success: false, error: error.message };
-      }
-    },
-
     async getMatchById(id) {
       try {
         if (!id) {
@@ -46,7 +28,6 @@
       }
     },
 
-    // Uniquement ADMIN
     async createMatch(matchData) {
       try {
         const requiredFields = ['team1', 'team2', 'date', 'status', 'coteTeam1', 'coteTeam2'];
@@ -69,7 +50,6 @@
       }
     },
 
-    // Uniquement ADMIN
     async updateMatch(id, matchData) {
       try {
         if (!id) {
@@ -91,7 +71,6 @@
       }
     },
 
-    // Uniquement ADMIN
     async deleteMatch(id) {
       try {
         if (!id) {
@@ -105,38 +84,4 @@
         return { success: false, error: error.message };
       }
     },
-
-    async getUpcomingMatches() {
-      try {
-        const now = new Date();
-        const oneDay = 24 * 60 * 60 * 1000;
-        const tomorrow = new Date(now.getTime() + oneDay);
-
-        const matches = await pb.collection('matches').getFullList({
-          filter: `status = "upcoming" && date >= "${now.toISOString()}" && date <= "${tomorrow.toISOString()}"`,
-          sort: 'date', 
-        });
-        return { success: true, matches };
-      } catch (error) {
-        console.error('Erreur lors de la récupération des matchs à venir:', error);
-        return { success: false, error: error.message };
-      }
-    },
-
-    async getLiveMatches() {
-      return this.getMatchesByStatus('live');
-    },
-
-    async getFinishedMatches(limit = 50) {
-      try {
-        const matches = await pb.collection('matches').getList(1, limit, {
-          filter: 'status = "finished"',
-          sort: '-date', 
-        });
-        return { success: true, matches: matches.items };
-      } catch (error) {
-        console.error('Erreur lors de la récupération de l\'historique:', error);
-        return { success: false, error: error.message };
-      }
-    }
   };
