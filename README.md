@@ -1,16 +1,57 @@
-# React + Vite
+# Projet JS EPSI B3
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Application de paris virtuels avec une connexion via twitch et un système de points
 
-Currently, two official plugins are available:
+## Installation
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Cloner le projet 
 
-## React Compiler
+```
+git clone https://github.com/Mashyumaru/League-of-Bets.git
+```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Installer les dépendances 
+```
+# Dépendances principales
+npm install react react-dom react-router-dom pocketbase
 
-## Expanding the ESLint configuration
+# Dépendances de développement
+npm install -D vite @vitejs/plugin-react
+npm install -D tailwindcss postcss autoprefixer
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Lancer le projet
+
+```
+npm run dev
+```
+
+## Fonctionnalités principales
+
+- Authentification via twitch
+- Système de points (pas d'argent)
+- Paris sur des matchs
+- Augmentation de la mise sans possibilité de changer d'équipe
+- Historique des paris
+- Statistiques des paris
+
+## Pages 
+
+- Acceuil
+    - Avec liste des matchs (en cours, à venir, terminé)
+- Mes paris
+- Regles 
+
+## Technologies
+
+- React
+- React Router
+- Tailwind CSS
+- Vite
+- PocketBase
+
+## Voies d'amelioration
+
+Premièrement, il manque une interface administrateur pour gérer les matchs et mettre a jour correctement le solde des points des utilisateurs.
+
+Deuxièmement, une feature principale de mon projet, le gain de point en regardant un stream twitch spécifique.
